@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertCircle, Settings } from "lucide-react";
 
 interface Proposal {
   _id: string;
@@ -24,6 +25,8 @@ const ProposalsPage = () => {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [name, setName] = useState("");
   const [html, setHtml] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     console.log("status", status);
@@ -44,16 +47,28 @@ const ProposalsPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("/api/proposals", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, html }),
-    });
+    setIsSubmitting(true);
+    setError("");
 
-    if (res.ok) {
-      fetchProposals();
-      setName("");
-      setHtml("");
+    try {
+      const res = await fetch("/api/proposals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, html }),
+      });
+
+      if (res.ok) {
+        fetchProposals();
+        setName("");
+        setHtml("");
+      } else {
+        const data = await res.json();
+        setError(data.message || "An error occurred");
+      }
+    } catch {
+      setError("An error occurred while creating the proposal");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -64,6 +79,29 @@ const ProposalsPage = () => {
   return (
     <div className="container mx-auto py-10">
       <h1 className="text-3xl font-bold mb-5">My Proposals</h1>
+      
+      {error && (
+        <Card className="mb-6 border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-red-800">
+              <AlertCircle className="h-4 w-4" />
+              <span className="font-medium">Error</span>
+            </div>
+            <p className="mt-1 text-red-700">{error}</p>
+            {error.includes("API key") && (
+              <Button 
+                onClick={() => router.push("/settings")}
+                className="mt-3"
+                size="sm"
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Configure API Key
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="mb-10">
         <CardHeader>
           <CardTitle>Create New Proposal</CardTitle>
@@ -76,6 +114,7 @@ const ProposalsPage = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
+                disabled={isSubmitting}
               />
             </div>
             <div className="mb-4">
@@ -84,9 +123,12 @@ const ProposalsPage = () => {
                 value={html}
                 onChange={(e) => setHtml(e.target.value)}
                 required
+                disabled={isSubmitting}
               />
             </div>
-            <Button type="submit">Create</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Creating..." : "Create"}
+            </Button>
           </form>
         </CardContent>
       </Card>

@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/mongodb";
 import Proposal from "@/models/Proposal";
+import User from "@/models/User";
 import { randomBytes } from "crypto";
 
 export default async function handler(
@@ -24,11 +25,24 @@ export default async function handler(
       return res.status(400).json({ message: "Missing name or html" });
     }
 
-    const shareableLink = randomBytes(8).toString("hex");
-
     if (!session.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+
+    // Check if user has a Groq API key configured
+    try {
+      const user = await User.findById(session.user.id).select('groqApiKey');
+      if (!user?.groqApiKey) {
+        return res.status(400).json({ 
+          message: "Groq API key is required. Please configure your API key in settings." 
+        });
+      }
+    } catch (error) {
+      console.error('Error checking API key:', error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+
+    const shareableLink = randomBytes(8).toString("hex");
 
     try {
       const proposal = await Proposal.create({
