@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Home, File } from "lucide-react";
+import { Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Define the nav items outside the component so they can be reused
@@ -9,12 +9,7 @@ const navItems = [
     href: "/",
     label: "Home",
     icon: Home,
-  },
-  {
-    href: "/proposals",
-    label: "Proposals",
-    icon: File,
-  },
+  }
 ];
 
 // Create a NavItems component to avoid duplication
