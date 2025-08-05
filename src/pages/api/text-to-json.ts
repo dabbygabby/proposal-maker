@@ -149,6 +149,8 @@ export default async function handler(
 
     // Get user's API key - need to explicitly include it since it has select: false
     const user = await User.findById(session.user.id).select('+groqApiKey');
+    console.log('User found:', !!user, 'Has API key:', !!user?.groqApiKey);
+    
     if (!user?.groqApiKey) {
       return res.status(400).json({ 
         message: "Groq API key is required. Please configure your API key in settings." 
@@ -157,6 +159,8 @@ export default async function handler(
 
     // Decrypt the API key
     const decryptedApiKey = user.getDecryptedApiKey();
+    console.log('Decrypted API key:', !!decryptedApiKey);
+    
     if (!decryptedApiKey) {
       return res.status(500).json({ message: "Error accessing API key" });
     }

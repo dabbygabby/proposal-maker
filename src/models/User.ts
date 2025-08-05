@@ -63,6 +63,7 @@ UserSchema.methods.getDecryptedApiKey = function() {
   try {
     return decrypt(this.groqApiKey);
   } catch (error) {
+    console.error('Error decrypting API key:', error);
     return null;
   }
 };
