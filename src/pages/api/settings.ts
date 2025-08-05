@@ -45,7 +45,7 @@ export default async function handler(
 
   if (req.method === "GET") {
     try {
-      const user = await User.findById(session.user.id).select('groqApiKey');
+      const user = await User.findById(session.user.id).select('+groqApiKey');
       
       return res.status(200).json({
         hasApiKey: !!user?.groqApiKey,
