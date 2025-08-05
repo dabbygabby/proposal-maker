@@ -60,6 +60,12 @@ UserSchema.pre('save', async function(next) {
 // Instance method to decrypt API key
 UserSchema.methods.getDecryptedApiKey = function() {
   if (!this.groqApiKey) return null;
+  
+  // Check if the API key is already plain text (not encrypted)
+  if (!this.groqApiKey.includes(':')) {
+    return this.groqApiKey;
+  }
+  
   try {
     return decrypt(this.groqApiKey);
   } catch (error) {

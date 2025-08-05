@@ -69,9 +69,14 @@ export default async function handler(
       }
 
       // Update user with new API key (or remove if empty)
-      const updateData = groqApiKey ? { groqApiKey } : { $unset: { groqApiKey: 1 } };
-      
-      await User.findByIdAndUpdate(session.user.id, updateData);
+      if (groqApiKey) {
+        // Encrypt the API key before saving
+        const { encrypt } = await import('@/lib/utils');
+        const encryptedApiKey = encrypt(groqApiKey);
+        await User.findByIdAndUpdate(session.user.id, { groqApiKey: encryptedApiKey });
+      } else {
+        await User.findByIdAndUpdate(session.user.id, { $unset: { groqApiKey: 1 } });
+      }
 
       return res.status(200).json({
         message: groqApiKey ? "API key updated successfully" : "API key removed successfully",
