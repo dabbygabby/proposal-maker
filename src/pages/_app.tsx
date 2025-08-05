@@ -23,7 +23,9 @@ const publicRoutes = ["/login", "/signup"];
 function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
   const router = useRouter();
-  const isPublicRoute = publicRoutes.includes(router.pathname);
+  const isPublicRoute =
+    publicRoutes.includes(router.pathname) ||
+    router.pathname.startsWith("/proposal/");
 
   if (status === "loading") {
     return (

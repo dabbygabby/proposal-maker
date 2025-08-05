@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Home, Users, BarChart2 } from "lucide-react";
+import { Home, File } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Define the nav items outside the component so they can be reused
@@ -11,16 +11,10 @@ const navItems = [
     icon: Home,
   },
   {
-    href: "/agents",
-    label: "Agents",
-    icon: BarChart2,
+    href: "/proposals",
+    label: "Proposals",
+    icon: File,
   },
-  {
-    href: "/workflows",
-    label: "Workflows",
-    icon: Users,
-  },
-
 ];
 
 // Create a NavItems component to avoid duplication
@@ -63,4 +57,4 @@ export function SideNav() {
 }
 
 // Export the NavItems for use in the mobile sheet
-export { NavItems }; 
+export { NavItems };

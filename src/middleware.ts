@@ -25,6 +25,6 @@ export const config = {
      * - login (login page)
      * - signup (signup page)
      */
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|login|signup).*)",
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|login|signup|proposal/).*)",
   ],
-}; 
+};
