@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
+import SystemPrompt from "@/models/SystemPrompt";
 import { randomUUID } from "crypto";
 
 interface Slide {
@@ -20,8 +21,19 @@ interface JsonResponse {
   presentationTitle: string;
 }
 
-async function callGroqAPI(apiKey: string, text: string, model: string): Promise<JsonResponse> {
-  const prompt = `Analyze the following text and convert it into a structured JSON format suitable for creating a PowerPoint presentation. 
+async function callGroqAPI(apiKey: string, text: string, model: string, systemPromptId?: string): Promise<JsonResponse> {
+  let prompt: string;
+  
+  if (systemPromptId) {
+    // Get system prompt from database
+    const systemPrompt = await SystemPrompt.findById(systemPromptId);
+    if (!systemPrompt || !systemPrompt.isActive) {
+      throw new Error('System prompt not found or inactive');
+    }
+    prompt = systemPrompt.prompt.replace('{text}', text);
+  } else {
+    // Default prompt
+    prompt = `Analyze the following text and convert it into a structured JSON format suitable for creating a PowerPoint presentation. 
 
 The JSON should have this exact structure:
 {
@@ -52,9 +64,12 @@ Guidelines:
 - Structure content logically for presentation flow
 
 Text to analyze:
-${text}
+{text}
 
 Return only valid JSON, no additional text or explanations.`;
+    
+    prompt = prompt.replace('{text}', text);
+  }
 
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -131,7 +146,7 @@ export default async function handler(
   }
 
   try {
-    const { text, model } = req.body;
+    const { text, model, systemPromptId } = req.body;
 
     if (!text || typeof text !== 'string') {
       return res.status(400).json({ message: "Text content is required" });
@@ -166,7 +181,7 @@ export default async function handler(
     }
 
     // Call Groq API
-    const result = await callGroqAPI(decryptedApiKey, text, model);
+    const result = await callGroqAPI(decryptedApiKey, text, model, systemPromptId);
 
     return res.status(200).json(result);
 

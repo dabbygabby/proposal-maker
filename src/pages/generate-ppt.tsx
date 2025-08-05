@@ -17,6 +17,15 @@ interface Slide {
   imagePlaceholder?: string;
 }
 
+interface SystemPrompt {
+  _id: string;
+  name: string;
+  description: string;
+  prompt: string;
+  category: string;
+  isActive: boolean;
+}
+
 interface JsonResponse {
   slides: Slide[];
   totalSlides: number;
@@ -28,6 +37,8 @@ const GeneratePPTPage = () => {
   const router = useRouter();
   const [inputText, setInputText] = useState("");
   const [selectedModel, setSelectedModel] = useState("openai/gpt-oss-20b");
+  const [selectedPrompt, setSelectedPrompt] = useState<string>("");
+  const [systemPrompts, setSystemPrompts] = useState<SystemPrompt[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [jsonResult, setJsonResult] = useState<JsonResponse | null>(null);
   const [error, setError] = useState("");
@@ -41,8 +52,22 @@ const GeneratePPTPage = () => {
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
+    } else if (status === "authenticated") {
+      fetchSystemPrompts();
     }
   }, [status, router]);
+
+  const fetchSystemPrompts = async () => {
+    try {
+      const res = await fetch("/api/system-prompts?category=presentation&active=true");
+      if (res.ok) {
+        const data = await res.json();
+        setSystemPrompts(data);
+      }
+    } catch (error) {
+      console.error("Error fetching system prompts:", error);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!inputText.trim()) {
@@ -60,7 +85,8 @@ const GeneratePPTPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           text: inputText,
-          model: selectedModel 
+          model: selectedModel,
+          systemPromptId: selectedPrompt || undefined
         }),
       });
 
@@ -144,8 +170,8 @@ const GeneratePPTPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-4">
-              <div className="flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
                 <label htmlFor="model" className="block text-sm font-medium mb-2">
                   AI Model
                 </label>
@@ -164,6 +190,40 @@ const GeneratePPTPage = () => {
                         className={selectedModel === model.value ? "bg-neutral-100" : ""}
                       >
                         {model.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              
+              <div>
+                <label htmlFor="systemPrompt" className="block text-sm font-medium mb-2">
+                  System Prompt
+                </label>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="w-full justify-between">
+                      {selectedPrompt 
+                        ? systemPrompts.find(p => p._id === selectedPrompt)?.name || "Custom Prompt"
+                        : "Default Prompt"
+                      }
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-full">
+                    <DropdownMenuItem
+                      onClick={() => setSelectedPrompt("")}
+                      className={!selectedPrompt ? "bg-neutral-100" : ""}
+                    >
+                      Default Prompt
+                    </DropdownMenuItem>
+                    {systemPrompts.map((prompt) => (
+                      <DropdownMenuItem
+                        key={prompt._id}
+                        onClick={() => setSelectedPrompt(prompt._id)}
+                        className={selectedPrompt === prompt._id ? "bg-neutral-100" : ""}
+                      >
+                        {prompt.name}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
