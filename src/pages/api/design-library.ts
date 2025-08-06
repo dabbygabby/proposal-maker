@@ -32,14 +32,16 @@ async function callGroqVisionAPI(apiKey: string, imageBase64: string, systemProm
           ]
         }
       ],
-      max_tokens: 4000,
+      max_completion_tokens: 4000,
       temperature: 0.7,
       response_format: { type: "json_object" }
     })
   });
 
   if (!response.ok) {
-    throw new Error(`Groq API error: ${response.status} ${response.statusText}`);
+    const errorText = await response.text();
+    console.error('Groq API error response:', errorText);
+    throw new Error(`Groq API error: ${response.status} ${response.statusText} - ${errorText}`);
   }
 
   const data = await response.json();
@@ -110,6 +112,23 @@ export default async function handler(
       const apiKey = user.getDecryptedApiKey();
       if (!apiKey) {
         return res.status(400).json({ message: "Invalid Groq API key" });
+      }
+
+      // Validate API key format (should start with gsk_)
+      if (!apiKey.startsWith('gsk_')) {
+        return res.status(400).json({ message: "Invalid Groq API key format" });
+      }
+
+      // Validate image base64
+      if (!imageBase64 || imageBase64.length < 100) {
+        return res.status(400).json({ message: "Invalid image data" });
+      }
+
+      // Check image size (4MB limit for base64)
+      const imageSizeInBytes = Math.ceil((imageBase64.length * 3) / 4);
+      const imageSizeInMB = imageSizeInBytes / (1024 * 1024);
+      if (imageSizeInMB > 4) {
+        return res.status(400).json({ message: "Image too large. Maximum size is 4MB" });
       }
 
       // Call Groq Vision API

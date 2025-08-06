@@ -282,7 +282,7 @@ const DesignLibraryPage = () => {
   const activePrompts = systemPrompts.filter(prompt => prompt.isActive);
 
   return (
-    <AppLayout>
+    <div className="container mx-auto">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -513,7 +513,7 @@ const DesignLibraryPage = () => {
           </Card>
         )}
       </div>
-    </AppLayout>
+    </div>
   );
 };
 
