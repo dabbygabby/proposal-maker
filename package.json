@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed-prompts": "node scripts/seed-system-prompts.js"
+    "seed-prompts": "node scripts/seed-system-prompts.js",
+    "seed-design-prompts": "node scripts/seed-design-prompts.js"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.7",

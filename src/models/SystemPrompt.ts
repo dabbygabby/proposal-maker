@@ -24,7 +24,7 @@ const SystemPromptSchema = new mongoose.Schema({
   category: {
     type: String,
     default: 'general',
-    enum: ['general', 'presentation', 'document', 'custom'],
+    enum: ['general', 'presentation', 'document', 'custom', 'design'],
   },
   version: {
     type: Number,
