@@ -71,8 +71,8 @@ const GeneratePPTPage = () => {
   const [showHtmlPreview, setShowHtmlPreview] = useState(false);
   const [improvementPrompt, setImprovementPrompt] = useState("");
   const [isImproving, setIsImproving] = useState(false);
-  const [improvedHtmlResult, setImprovedHtmlResult] = useState<HtmlResponse | null>(null);
-  const [showImprovedPreview, setShowImprovedPreview] = useState(false);
+  const [improvementHistory, setImprovementHistory] = useState<string[]>([]);
+  const [currentHtml, setCurrentHtml] = useState<string>("");
 
   const models = [
     { value: "openai/gpt-oss-20b", label: "GPT-Oss-20B (Faster)" },
@@ -175,6 +175,8 @@ const GeneratePPTPage = () => {
 
       if (res.ok) {
         setHtmlResult(data);
+        setCurrentHtml(data.html); // Set the current HTML for improvements
+        setImprovementHistory([]); // Reset improvement history
         setError(""); // Clear any previous errors
       } else {
         setError(data.message || "An error occurred while generating HTML");
@@ -189,21 +191,20 @@ const GeneratePPTPage = () => {
   };
 
   const handleImprovePresentation = async () => {
-    if (!htmlResult?.html) {
+    if (!currentHtml) {
       setError("Please generate HTML first to improve it.");
       return;
     }
 
     setIsImproving(true);
     setError("");
-    setImprovedHtmlResult(null);
 
     try {
       const res = await fetch("/api/improve-presentation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          html: htmlResult.html,
+          html: currentHtml,
           prompt: improvementPrompt
         }),
       });
@@ -211,7 +212,19 @@ const GeneratePPTPage = () => {
       const data = await res.json();
 
       if (res.ok) {
-        setImprovedHtmlResult(data);
+        // Replace the current HTML with the improved version
+        setCurrentHtml(data.html);
+        setHtmlResult({
+          ...htmlResult!,
+          html: data.html
+        });
+        
+        // Add to improvement history
+        setImprovementHistory(prev => [...prev, improvementPrompt]);
+        
+        // Clear the improvement prompt for next iteration
+        setImprovementPrompt("");
+        
         setError(""); // Clear any previous errors
       } else {
         setError(data.message || "An error occurred while improving presentation");
@@ -642,52 +655,22 @@ const GeneratePPTPage = () => {
                     </Button>
                   </div>
 
-                  {improvedHtmlResult && (
-                    <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                      <div className="flex items-center gap-2 text-green-800 mb-2">
+                  {improvementHistory.length > 0 && (
+                    <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-center gap-2 text-blue-800 mb-2">
                         <CheckCircle className="h-4 w-4" />
-                        <span className="font-medium">Presentation Improved!</span>
+                        <span className="font-medium">Improvement History</span>
                       </div>
-                      <p className="text-sm text-green-700 mb-3">
-                        Your presentation has been enhanced based on your prompt. You can now copy or download the improved version.
+                      <p className="text-sm text-blue-700 mb-3">
+                        Your presentation has been improved {improvementHistory.length} time(s). Each improvement builds on the previous one.
                       </p>
-                      <div className="flex gap-2">
-                        <Button 
-                          onClick={() => copyHtmlToClipboard(improvedHtmlResult.html)} 
-                          variant="outline" 
-                          size="sm"
-                        >
-                          <Copy className="h-4 w-4 mr-2" />
-                          Copy Improved HTML
-                        </Button>
-                        <Button 
-                          onClick={() => downloadHtml(improvedHtmlResult.html, improvedHtmlResult.presentationTitle)} 
-                          variant="outline" 
-                          size="sm"
-                        >
-                          <Download className="h-4 w-4 mr-2" />
-                          Download Improved HTML
-                        </Button>
-                        <Button 
-                          onClick={() => setShowImprovedPreview(!showImprovedPreview)} 
-                          variant="outline" 
-                          size="sm"
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          {showImprovedPreview ? "Hide Improved Preview" : "Show Improved Preview"}
-                        </Button>
+                      <div className="space-y-2">
+                        {improvementHistory.map((prompt, index) => (
+                          <div key={index} className="text-xs bg-blue-100 p-2 rounded">
+                            <span className="font-medium">Improvement {index + 1}:</span> {prompt}
+                          </div>
+                        ))}
                       </div>
-                    </div>
-                  )}
-
-                  {showImprovedPreview && improvedHtmlResult && (
-                    <div className="border rounded-lg p-4 bg-gray-50">
-                      <div className="text-sm text-gray-600 mb-2">Improved HTML Preview:</div>
-                      <iframe
-                        srcDoc={improvedHtmlResult.html}
-                        className="w-full h-96 border rounded"
-                        title="Improved HTML Preview"
-                      />
                     </div>
                   )}
                 </div>

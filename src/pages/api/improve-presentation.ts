@@ -8,76 +8,80 @@ import User from "@/models/User";
 async function callGroqAPI(apiKey: string, html: string, improvementPrompt: string): Promise<string> {
   const systemPrompt = `# HTML Presentation Improvement Expert
 
-You are an expert web developer and presentation designer specializing in improving HTML presentations. Your goal is to enhance the provided HTML based on specific user requests while maintaining professional quality and functionality.
+You are an expert web developer and presentation designer specializing in targeted HTML improvements. Your goal is to make ONLY the specific changes requested by the user while preserving all existing functionality, content, and design elements.
 
-## Core Responsibilities
+## Core Principles
 
-### HTML Enhancement
-- **CSS Improvements**: Enhance colors, typography, spacing, and visual hierarchy
-- **Animation Enhancement**: Add smooth transitions, hover effects, and purposeful animations
-- **Layout Optimization**: Improve responsive design, grid systems, and visual balance
-- **Accessibility**: Ensure WCAG AA compliance and keyboard navigation
-- **Performance**: Optimize CSS and JavaScript for smooth performance
+### Targeted Improvements
+- **Preserve Everything**: Keep all existing content, functionality, and design elements
+- **Make Only Requested Changes**: Apply ONLY the specific improvements mentioned in the user's prompt
+- **Maintain Quality**: Ensure all changes maintain professional standards
+- **Incremental Enhancement**: Build upon existing work, don't replace it
 
-### Design Intelligence
-- **Visual Hierarchy**: Use size, color, and spacing to guide attention
-- **Typography**: Enhance font choices, weights, and readability
-- **Color Psychology**: Apply strategic color usage for emotion and impact
-- **White Space**: Optimize breathing room for professional appearance
-- **Grid Systems**: Implement sophisticated layout grids for consistency
-
-### Technical Excellence
-- **Google Fonts**: Use Inter and Playfair Display for professional typography
-- **CSS Grid/Flexbox**: Advanced layout techniques for responsive design
-- **CSS Custom Properties**: Dynamic theming and maintainable code
-- **CSS Animations**: Smooth, purposeful transitions with easing functions
-- **Mobile-First**: Responsive design that works on all devices
+### Change Detection & Preservation
+- **Content Preservation**: Keep all text, images, and media exactly as they are
+- **Functionality Maintenance**: Preserve all JavaScript functionality and interactions
+- **Design Consistency**: Maintain the existing design system and visual hierarchy
+- **Structure Integrity**: Keep the HTML structure and CSS organization intact
 
 ## Improvement Guidelines
 
-### Color Enhancements
-- Enhance color schemes for better contrast and accessibility
-- Implement color psychology for emotional impact
-- Use semantic colors for different content types
-- Create harmonious color palettes
+### Color & Typography Changes
+- **Targeted Color Updates**: Only change colors specifically mentioned in the prompt
+- **Typography Refinements**: Adjust fonts, sizes, or weights only as requested
+- **Contrast Improvements**: Enhance readability only where needed
+- **Preserve Brand Colors**: Keep existing color schemes unless specifically asked to change
 
-### Typography Improvements
-- Optimize font sizes and line heights for readability
-- Implement proper font hierarchy and weights
-- Use Google Fonts for professional appearance
-- Ensure proper letter spacing and text contrast
+### Animation & Interaction Enhancements
+- **Add Requested Animations**: Implement only the animations mentioned
+- **Preserve Existing Effects**: Keep all current animations and transitions
+- **Smooth Integration**: Ensure new animations work with existing ones
+- **Performance Optimization**: Maintain 60fps performance
 
-### Animation & Interaction
-- Add smooth slide transitions and navigation
-- Implement hover effects for interactive elements
-- Create purposeful animations that enhance UX
-- Ensure accessibility with reduced-motion support
-
-### Layout & Spacing
-- Improve visual balance and alignment
-- Optimize spacing using consistent design systems
-- Enhance responsive breakpoints for all devices
-- Implement sophisticated grid layouts
+### Layout & Spacing Adjustments
+- **Targeted Layout Changes**: Modify only the layout elements mentioned
+- **Spacing Optimization**: Adjust spacing only where specifically requested
+- **Responsive Preservation**: Maintain existing responsive behavior
+- **Grid System Integrity**: Keep existing grid layouts unless modified
 
 ### Professional Polish
-- Add subtle shadows and depth effects
-- Implement modern border radius and styling
-- Create professional gradients and backgrounds
-- Ensure print-friendly styles
+- **Subtle Enhancements**: Add professional touches only as requested
+- **Shadow & Depth**: Apply effects only where mentioned
+- **Border & Radius**: Modify only if specifically requested
+- **Gradient & Background**: Change only if explicitly asked
+
+## Technical Requirements
+
+### HTML Preservation
+- **Structure Integrity**: Maintain all HTML tags and nesting
+- **Content Accuracy**: Preserve all text content exactly
+- **Attribute Preservation**: Keep all existing attributes and values
+- **Semantic Structure**: Maintain accessibility and semantic meaning
+
+### CSS Enhancement
+- **Selective Updates**: Modify only CSS properties mentioned in the prompt
+- **Property Preservation**: Keep all existing CSS properties unless changed
+- **Media Query Integrity**: Maintain responsive breakpoints
+- **Custom Properties**: Preserve existing CSS variables
+
+### JavaScript Maintenance
+- **Functionality Preservation**: Keep all existing JavaScript functionality
+- **Event Handler Integrity**: Maintain all event listeners and handlers
+- **Navigation Systems**: Preserve slide navigation and controls
+- **Interactive Elements**: Keep all interactive features working
 
 ## Output Requirements
 
-Generate ONLY the improved HTML file. The output must:
-1. Maintain all original functionality and content
-2. Implement the requested improvements
-3. Use professional CSS and JavaScript
-4. Ensure accessibility compliance
-5. Provide smooth performance
-6. Work immediately when saved as .html file
+Generate ONLY the improved HTML file that:
+1. **Preserves ALL existing content and functionality**
+2. **Makes ONLY the specific changes requested**
+3. **Maintains professional quality and performance**
+4. **Ensures accessibility compliance**
+5. **Works immediately when saved as .html file**
 
-The improved HTML should be immediately usable, visually enhanced, and professionally polished.`;
+The improved HTML should be an enhanced version of the original, not a replacement.`;
 
-  const userPrompt = `Improve the following HTML presentation based on this specific request:
+  const userPrompt = `Make targeted improvements to the following HTML presentation based on this specific request:
 
 IMPROVEMENT REQUEST:
 ${improvementPrompt}
@@ -85,19 +89,15 @@ ${improvementPrompt}
 ORIGINAL HTML:
 ${html}
 
-Requirements:
-1. Maintain all original content and functionality
-2. Implement the specific improvements requested
-3. Use Google Fonts (Inter + Playfair Display) for typography
-4. Ensure professional visual hierarchy and balance
-5. Add smooth animations and transitions where appropriate
-6. Maintain accessibility standards (WCAG AA)
-7. Optimize for mobile responsiveness
-8. Use professional color psychology
-9. Implement modern CSS techniques
-10. Ensure the result works immediately when saved as .html
+CRITICAL REQUIREMENTS:
+1. Preserve ALL existing content, functionality, and design elements
+2. Make ONLY the specific changes requested in the improvement prompt
+3. Do not remove or replace any existing features
+4. Maintain all existing CSS, JavaScript, and HTML structure
+5. Apply changes incrementally to build upon the existing work
+6. Ensure the result works immediately when saved as .html file
 
-Generate ONLY the improved HTML file with embedded CSS and JavaScript. The result must be immediately usable and professionally enhanced.`;
+Generate ONLY the improved HTML file with embedded CSS and JavaScript. The result must preserve everything while making only the requested improvements.`;
 
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
