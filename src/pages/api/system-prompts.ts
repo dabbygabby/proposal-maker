@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
@@ -19,7 +20,7 @@ export default async function handler(
     try {
       const { category, active } = req.query;
       
-      let filter: any = {};
+      const filter: any = {};
       
       if (category && category !== 'all') {
         filter.category = category;

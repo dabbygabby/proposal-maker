@@ -1,9 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Settings, Key, CheckCircle, XCircle } from "lucide-react";
 
 const SettingsPage = () => {
@@ -13,7 +20,9 @@ const SettingsPage = () => {
   const [hasApiKey, setHasApiKey] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error">("success");
+  const [messageType, setMessageType] = useState<"success" | "error">(
+    "success"
+  );
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -58,7 +67,8 @@ const SettingsPage = () => {
         setMessage(data.message || "An error occurred");
         setMessageType("error");
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error updating settings:", error);
       setMessage("An error occurred while updating settings");
       setMessageType("error");
     } finally {
@@ -87,7 +97,8 @@ const SettingsPage = () => {
         setMessage(data.message || "An error occurred");
         setMessageType("error");
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error removing API key:", error);
       setMessage("An error occurred while removing API key");
       setMessageType("error");
     } finally {
@@ -114,16 +125,19 @@ const SettingsPage = () => {
               Groq API Key
             </CardTitle>
             <CardDescription>
-              Add your Groq API key to enable AI-powered features. Your API key is encrypted and stored securely.
+              Add your Groq API key to enable AI-powered features. Your API key
+              is encrypted and stored securely.
             </CardDescription>
           </CardHeader>
           <CardContent>
             {message && (
-              <div className={`mb-4 p-3 rounded-md flex items-center gap-2 ${
-                messageType === "success" 
-                  ? "bg-green-50 text-green-800 border border-green-200" 
-                  : "bg-red-50 text-red-800 border border-red-200"
-              }`}>
+              <div
+                className={`mb-4 p-3 rounded-md flex items-center gap-2 ${
+                  messageType === "success"
+                    ? "bg-green-50 text-green-800 border border-green-200"
+                    : "bg-red-50 text-red-800 border border-red-200"
+                }`}
+              >
                 {messageType === "success" ? (
                   <CheckCircle className="h-4 w-4" />
                 ) : (
@@ -139,8 +153,8 @@ const SettingsPage = () => {
                   <CheckCircle className="h-4 w-4" />
                   <span className="font-medium">API key is configured</span>
                 </div>
-                <Button 
-                  onClick={handleRemoveApiKey} 
+                <Button
+                  onClick={handleRemoveApiKey}
                   disabled={isLoading}
                   variant="destructive"
                 >
@@ -150,7 +164,10 @@ const SettingsPage = () => {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="apiKey" className="block text-sm font-medium mb-2">
+                  <label
+                    htmlFor="apiKey"
+                    className="block text-sm font-medium mb-2"
+                  >
                     Groq API Key
                   </label>
                   <Input
@@ -164,9 +181,9 @@ const SettingsPage = () => {
                   />
                   <p className="text-sm text-neutral-500 mt-1">
                     Get your API key from{" "}
-                    <a 
-                      href="https://console.groq.com/keys" 
-                      target="_blank" 
+                    <a
+                      href="https://console.groq.com/keys"
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
                     >
@@ -186,4 +203,4 @@ const SettingsPage = () => {
   );
 };
 
-export default SettingsPage; 
+export default SettingsPage;

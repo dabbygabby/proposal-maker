@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -96,11 +96,12 @@ const GeneratePPTPage = () => {
         setJsonResult(data);
         // Expand all slides by default
         const slideIds = new Set(data.slides.map((slide: Slide) => slide.id));
-        setExpandedSlides(slideIds);
+        setExpandedSlides(slideIds as Set<string>);
       } else {
         setError(data.message || "An error occurred");
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error generating JSON:", error);
       setError("An error occurred while generating JSON");
     } finally {
       setIsGenerating(false);
