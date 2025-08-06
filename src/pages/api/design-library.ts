@@ -45,6 +45,8 @@ async function callGroqVisionAPI(apiKey: string, imageBase64: string, systemProm
   }
 
   const data = await response.json();
+  console.log('Groq API response:', JSON.stringify(data, null, 2));
+  
   const content = data.choices[0]?.message?.content;
 
   if (!content) {
@@ -53,11 +55,13 @@ async function callGroqVisionAPI(apiKey: string, imageBase64: string, systemProm
 
   try {
     const parsedContent = JSON.parse(content);
+    console.log('Parsed content:', JSON.stringify(parsedContent, null, 2));
     return {
       cssVariables: parsedContent.cssVariables || '',
       analysisResult: parsedContent.analysisResult || ''
     };
   } catch (error) {
+    console.error('JSON parse error:', error);
     throw new Error('Invalid JSON response from Groq API');
   }
 }
@@ -132,11 +136,31 @@ export default async function handler(
       }
 
       // Call Groq Vision API
-      const { cssVariables, analysisResult } = await callGroqVisionAPI(
-        apiKey,
-        imageBase64,
-        systemPrompt.prompt
-      );
+      let cssVariables = '';
+      let analysisResult = '';
+      
+      try {
+        const result = await callGroqVisionAPI(
+          apiKey,
+          imageBase64,
+          systemPrompt.prompt
+        );
+        cssVariables = result.cssVariables;
+        analysisResult = result.analysisResult;
+      } catch (error) {
+        console.error('Groq API error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return res.status(400).json({ 
+          message: `Groq API error: ${errorMessage}` 
+        });
+      }
+
+      // Validate that we got results
+      if (!cssVariables || !analysisResult) {
+        return res.status(400).json({ 
+          message: "Failed to analyze image. Please try again." 
+        });
+      }
 
       // Create design library
       const newDesignLibrary = await DesignLibrary.create({

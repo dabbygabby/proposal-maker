@@ -15,11 +15,13 @@ const DesignLibrarySchema = new mongoose.Schema({
     type: String,
     required: [true, 'CSS variables are required'],
     trim: true,
+    default: '',
   },
   analysisResult: {
     type: String,
     required: [true, 'Analysis result is required'],
     trim: true,
+    default: '',
   },
   systemPromptId: {
     type: mongoose.Schema.Types.ObjectId,
