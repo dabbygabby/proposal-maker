@@ -171,12 +171,14 @@ const GeneratePPTPage = () => {
 
       if (res.ok) {
         setHtmlResult(data);
+        setError(""); // Clear any previous errors
       } else {
         setError(data.message || "An error occurred while generating HTML");
+        console.error("HTML generation error:", data);
       }
     } catch (error: any) {
       console.error("Error generating HTML:", error);
-      setError("An error occurred while generating HTML");
+      setError("An error occurred while generating HTML. Please check your API key configuration.");
     } finally {
       setIsGeneratingHtml(false);
     }
@@ -371,7 +373,7 @@ const GeneratePPTPage = () => {
               <CardHeader>
                 <CardTitle>Select Design Language</CardTitle>
                 <CardDescription>
-                  Choose a design library to apply to your presentation
+                  Choose a design library to apply to your presentation. The selected design will be used to create a beautiful, interactive HTML presentation.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -390,28 +392,42 @@ const GeneratePPTPage = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-full">
-                      {designLibraries.map((library) => (
-                        <DropdownMenuItem
-                          key={library._id}
-                          onClick={() => setSelectedDesignLibrary(library._id)}
-                          className={selectedDesignLibrary === library._id ? "bg-neutral-100" : ""}
-                        >
-                          {library.name}
+                      {designLibraries.length === 0 ? (
+                        <DropdownMenuItem disabled>
+                          No design libraries available
                         </DropdownMenuItem>
-                      ))}
+                      ) : (
+                        designLibraries.map((library) => (
+                          <DropdownMenuItem
+                            key={library._id}
+                            onClick={() => setSelectedDesignLibrary(library._id)}
+                            className={selectedDesignLibrary === library._id ? "bg-neutral-100" : ""}
+                          >
+                            <div className="flex flex-col items-start">
+                              <span className="font-medium">{library.name}</span>
+                              <span className="text-xs text-gray-500">{library.description}</span>
+                            </div>
+                          </DropdownMenuItem>
+                        ))
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  {designLibraries.length === 0 && (
+                    <p className="text-sm text-amber-600 mt-2">
+                      No design libraries found. Please create a design library first in the Design Library section.
+                    </p>
+                  )}
                 </div>
 
                 <Button 
                   onClick={handleGenerateHtml} 
-                  disabled={isGeneratingHtml || !selectedDesignLibrary}
+                  disabled={isGeneratingHtml || !selectedDesignLibrary || designLibraries.length === 0}
                   className="w-full"
                 >
                   {isGeneratingHtml ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Generating HTML...
+                      Generating Beautiful HTML Presentation...
                     </>
                   ) : (
                     <>
@@ -420,6 +436,16 @@ const GeneratePPTPage = () => {
                     </>
                   )}
                 </Button>
+                
+                {selectedDesignLibrary && (
+                  <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                    <strong>Selected Design:</strong> {designLibraries.find(d => d._id === selectedDesignLibrary)?.name}
+                    <br />
+                    <span className="text-xs">
+                      This will create an interactive, mobile-responsive presentation using the selected design system.
+                    </span>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
