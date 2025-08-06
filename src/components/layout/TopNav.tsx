@@ -19,7 +19,7 @@ export function TopNav() {
     <header className="sticky top-0 z-40 border-b bg-white dark:bg-neutral-950">
       <div className="flex h-16 items-center justify-between px-4">
         <div className="flex items-center">
-          <Link href="/" className="mr-4">
+          <Link href="/" className="mr-4 hidden md:block">
             <Image
               src="/logo.png"
               alt="Logo"
