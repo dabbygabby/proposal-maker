@@ -60,9 +60,13 @@ async function callGroqVisionAPI(apiKey: string, imageBase64: string, systemProm
     // Handle different response formats
     if (parsedContent.css && parsedContent.implementationNote) {
       // New format with css and implementationNote
+      const analysisResult = typeof parsedContent.implementationNote === 'object' 
+        ? JSON.stringify(parsedContent.implementationNote, null, 2)
+        : parsedContent.implementationNote;
+      
       return {
         cssVariables: parsedContent.css,
-        analysisResult: parsedContent.implementationNote
+        analysisResult: analysisResult
       };
     } else if (parsedContent.cssVariables && parsedContent.analysisResult) {
       // Original expected format
@@ -73,7 +77,12 @@ async function callGroqVisionAPI(apiKey: string, imageBase64: string, systemProm
     } else {
       // Fallback - try to extract CSS from any available field
       const cssContent = parsedContent.css || parsedContent.cssVariables || parsedContent.styles || '';
-      const analysisContent = parsedContent.implementationNote || parsedContent.analysisResult || parsedContent.analysis || '';
+      let analysisContent = parsedContent.implementationNote || parsedContent.analysisResult || parsedContent.analysis || '';
+      
+      // Convert object to string if needed
+      if (typeof analysisContent === 'object') {
+        analysisContent = JSON.stringify(analysisContent, null, 2);
+      }
       
       return {
         cssVariables: cssContent,
