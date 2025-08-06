@@ -4,7 +4,6 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/mongodb";
 import DesignLibrary from "@/models/DesignLibrary";
-import SystemPrompt from "@/models/SystemPrompt";
 
 interface Slide {
   id: string;

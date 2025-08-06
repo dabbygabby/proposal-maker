@@ -28,11 +28,9 @@ import {
   EyeOff,
   FileText,
   Upload,
-  Download,
   Palette,
   Image as ImageIcon,
 } from "lucide-react";
-import { AppLayout } from "@/components/layout/AppLayout";
 
 interface SystemPrompt {
   _id: string;
@@ -65,7 +63,9 @@ const DesignLibraryPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingLibrary, setEditingLibrary] = useState<DesignLibrary | null>(null);
+  const [editingLibrary, setEditingLibrary] = useState<DesignLibrary | null>(
+    null
+  );
   const [showAnalysis, setShowAnalysis] = useState<Set<string>>(new Set());
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -116,7 +116,7 @@ const DesignLibraryPage = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        const base64 = result.split(',')[1];
+        const base64 = result.split(",")[1];
         setSelectedImage(base64);
         setImagePreview(result);
       };
@@ -136,7 +136,9 @@ const DesignLibraryPage = () => {
     }
 
     try {
-      const url = editingLibrary ? `/api/design-library` : "/api/design-library";
+      const url = editingLibrary
+        ? `/api/design-library`
+        : "/api/design-library";
       const method = editingLibrary ? "PUT" : "POST";
       const body = editingLibrary
         ? { ...formData, id: editingLibrary._id }
@@ -153,11 +155,11 @@ const DesignLibraryPage = () => {
       if (res.ok) {
         const data = await res.json();
         if (editingLibrary) {
-          setDesignLibraries(prev =>
-            prev.map(lib => lib._id === editingLibrary._id ? data : lib)
+          setDesignLibraries((prev) =>
+            prev.map((lib) => (lib._id === editingLibrary._id ? data : lib))
           );
         } else {
-          setDesignLibraries(prev => [data, ...prev]);
+          setDesignLibraries((prev) => [data, ...prev]);
         }
         resetForm();
         setShowCreateForm(false);
@@ -184,7 +186,7 @@ const DesignLibraryPage = () => {
       });
 
       if (res.ok) {
-        setDesignLibraries(prev => prev.filter(lib => lib._id !== id));
+        setDesignLibraries((prev) => prev.filter((lib) => lib._id !== id));
       } else {
         const errorData = await res.json();
         setError(errorData.message || "An error occurred");
@@ -217,7 +219,7 @@ const DesignLibraryPage = () => {
   };
 
   const toggleAnalysisVisibility = (id: string) => {
-    setShowAnalysis(prev => {
+    setShowAnalysis((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
         newSet.delete(id);
@@ -229,11 +231,11 @@ const DesignLibraryPage = () => {
   };
 
   const exportCSS = (cssVariables: string) => {
-    const blob = new Blob([cssVariables], { type: 'text/css' });
+    const blob = new Blob([cssVariables], { type: "text/css" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'design-system.css';
+    a.download = "design-system.css";
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -247,39 +249,44 @@ const DesignLibraryPage = () => {
           colors: {},
           spacing: {},
           fontSize: {},
-        }
-      }
+        },
+      },
     };
 
-    variables.forEach(variable => {
+    variables.forEach((variable) => {
       const match = variable.match(/--([^:]+):\s*([^;]+);/);
       if (match) {
         const [, name, value] = match;
         const cleanValue = value.trim();
-        
-        if (cleanValue.includes('#')) {
+
+        if (cleanValue.includes("#")) {
           // Color variable
+          //@ts-expect-error tailwind config
           tailwindConfig.theme.extend.colors[name] = cleanValue;
-        } else if (cleanValue.includes('px') || cleanValue.includes('rem')) {
+        } else if (cleanValue.includes("px") || cleanValue.includes("rem")) {
           // Spacing variable
+          //@ts-expect-error tailwind config
           tailwindConfig.theme.extend.spacing[name] = cleanValue;
-        } else if (cleanValue.includes('font')) {
+        } else if (cleanValue.includes("font")) {
           // Font variable
+          //@ts-expect-error tailwind config
           tailwindConfig.theme.extend.fontSize[name] = cleanValue;
         }
       }
     });
 
-    const blob = new Blob([JSON.stringify(tailwindConfig, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(tailwindConfig, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'tailwind.config.js';
+    a.download = "tailwind.config.js";
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const activePrompts = systemPrompts.filter(prompt => prompt.isActive);
+  const activePrompts = systemPrompts.filter((prompt) => prompt.isActive);
 
   return (
     <div className="container mx-auto">
@@ -308,10 +315,13 @@ const DesignLibraryPage = () => {
           <Card>
             <CardHeader>
               <CardTitle>
-                {editingLibrary ? "Edit Design Library" : "Create New Design Library"}
+                {editingLibrary
+                  ? "Edit Design Library"
+                  : "Create New Design Library"}
               </CardTitle>
               <CardDescription>
-                Upload a screenshot and select a system prompt to analyze the design
+                Upload a screenshot and select a system prompt to analyze the
+                design
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -322,7 +332,10 @@ const DesignLibraryPage = () => {
                     <Input
                       value={formData.name}
                       onChange={(e) =>
-                        setFormData(prev => ({ ...prev, name: e.target.value }))
+                        setFormData((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
                       }
                       placeholder="Enter design library name"
                       required
@@ -332,9 +345,14 @@ const DesignLibraryPage = () => {
                     <label className="text-sm font-medium">System Prompt</label>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="w-full justify-between">
+                        <Button
+                          variant="outline"
+                          className="w-full justify-between"
+                        >
                           {formData.systemPromptId
-                            ? activePrompts.find(p => p._id === formData.systemPromptId)?.name
+                            ? activePrompts.find(
+                                (p) => p._id === formData.systemPromptId
+                              )?.name
                             : "Select a system prompt"}
                           <ChevronDown className="h-4 w-4" />
                         </Button>
@@ -344,7 +362,10 @@ const DesignLibraryPage = () => {
                           <DropdownMenuItem
                             key={prompt._id}
                             onClick={() =>
-                              setFormData(prev => ({ ...prev, systemPromptId: prompt._id }))
+                              setFormData((prev) => ({
+                                ...prev,
+                                systemPromptId: prompt._id,
+                              }))
                             }
                           >
                             {prompt.name}
@@ -360,7 +381,10 @@ const DesignLibraryPage = () => {
                   <Textarea
                     value={formData.description}
                     onChange={(e) =>
-                      setFormData(prev => ({ ...prev, description: e.target.value }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
                     }
                     placeholder="Describe the design library"
                     required
@@ -368,7 +392,9 @@ const DesignLibraryPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Upload Screenshot</label>
+                  <label className="text-sm font-medium">
+                    Upload Screenshot
+                  </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                     <input
                       type="file"
@@ -385,7 +411,9 @@ const DesignLibraryPage = () => {
                             alt="Preview"
                             className="mx-auto max-h-48 rounded-lg"
                           />
-                          <p className="text-sm text-gray-500">Click to change image</p>
+                          <p className="text-sm text-gray-500">
+                            Click to change image
+                          </p>
                         </div>
                       ) : (
                         <div className="space-y-2">
@@ -393,7 +421,9 @@ const DesignLibraryPage = () => {
                           <p className="text-sm text-gray-500">
                             Click to upload or drag and drop
                           </p>
-                          <p className="text-xs text-gray-400">PNG, JPG up to 10MB</p>
+                          <p className="text-xs text-gray-400">
+                            PNG, JPG up to 10MB
+                          </p>
                         </div>
                       )}
                     </label>
@@ -402,7 +432,11 @@ const DesignLibraryPage = () => {
 
                 <div className="flex gap-2">
                   <Button type="submit" disabled={isLoading}>
-                    {isLoading ? "Processing..." : editingLibrary ? "Update" : "Create"}
+                    {isLoading
+                      ? "Processing..."
+                      : editingLibrary
+                      ? "Update"
+                      : "Create"}
                   </Button>
                   <Button
                     type="button"
@@ -443,7 +477,9 @@ const DesignLibraryPage = () => {
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => toggleAnalysisVisibility(library._id)}>
+                      <DropdownMenuItem
+                        onClick={() => toggleAnalysisVisibility(library._id)}
+                      >
                         {showAnalysis.has(library._id) ? (
                           <>
                             <EyeOff className="mr-2 h-4 w-4" />
@@ -456,11 +492,17 @@ const DesignLibraryPage = () => {
                           </>
                         )}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => exportCSS(library.cssVariables)}>
+                      <DropdownMenuItem
+                        onClick={() => exportCSS(library.cssVariables)}
+                      >
                         <FileText className="mr-2 h-4 w-4" />
                         Export CSS
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => exportTailwindConfig(library.cssVariables)}>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          exportTailwindConfig(library.cssVariables)
+                        }
+                      >
                         <Palette className="mr-2 h-4 w-4" />
                         Export Tailwind Config
                       </DropdownMenuItem>
@@ -501,9 +543,12 @@ const DesignLibraryPage = () => {
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <ImageIcon className="h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium mb-2">No design libraries yet</h3>
+              <h3 className="text-lg font-medium mb-2">
+                No design libraries yet
+              </h3>
               <p className="text-muted-foreground text-center mb-4">
-                Upload your first screenshot to start building your design system
+                Upload your first screenshot to start building your design
+                system
               </p>
               <Button onClick={() => setShowCreateForm(true)}>
                 <Plus className="mr-2 h-4 w-4" />
@@ -517,4 +562,4 @@ const DesignLibraryPage = () => {
   );
 };
 
-export default DesignLibraryPage; 
+export default DesignLibraryPage;
