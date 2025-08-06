@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AlertCircle, Settings, ChevronDown, ChevronRight, FileText, Loader2, Palette, Copy, Eye, Download } from "lucide-react";
+import { AlertCircle, Settings, ChevronDown, ChevronRight, FileText, Loader2, Palette, Copy, Eye, Download, CheckCircle } from "lucide-react";
 
 interface Slide {
   id: string;
@@ -69,6 +69,10 @@ const GeneratePPTPage = () => {
   const [error, setError] = useState("");
   const [expandedSlides, setExpandedSlides] = useState<Set<string>>(new Set());
   const [showHtmlPreview, setShowHtmlPreview] = useState(false);
+  const [improvementPrompt, setImprovementPrompt] = useState("");
+  const [isImproving, setIsImproving] = useState(false);
+  const [improvedHtmlResult, setImprovedHtmlResult] = useState<HtmlResponse | null>(null);
+  const [showImprovedPreview, setShowImprovedPreview] = useState(false);
 
   const models = [
     { value: "openai/gpt-oss-20b", label: "GPT-Oss-20B (Faster)" },
@@ -184,11 +188,48 @@ const GeneratePPTPage = () => {
     }
   };
 
-  const copyHtmlToClipboard = async () => {
-    if (!htmlResult?.html) return;
+  const handleImprovePresentation = async () => {
+    if (!htmlResult?.html) {
+      setError("Please generate HTML first to improve it.");
+      return;
+    }
+
+    setIsImproving(true);
+    setError("");
+    setImprovedHtmlResult(null);
+
+    try {
+      const res = await fetch("/api/improve-presentation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          html: htmlResult.html,
+          prompt: improvementPrompt
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setImprovedHtmlResult(data);
+        setError(""); // Clear any previous errors
+      } else {
+        setError(data.message || "An error occurred while improving presentation");
+        console.error("Presentation improvement error:", data);
+      }
+    } catch (error: any) {
+      console.error("Error improving presentation:", error);
+      setError("An error occurred while improving presentation. Please check your API key configuration.");
+    } finally {
+      setIsImproving(false);
+    }
+  };
+
+  const copyHtmlToClipboard = async (htmlContent?: string) => {
+    if (!htmlContent) return;
     
     try {
-      await navigator.clipboard.writeText(htmlResult.html);
+      await navigator.clipboard.writeText(htmlContent);
       // You could add a toast notification here
       alert("HTML copied to clipboard!");
     } catch (error) {
@@ -197,14 +238,14 @@ const GeneratePPTPage = () => {
     }
   };
 
-  const downloadHtml = () => {
-    if (!htmlResult?.html) return;
+  const downloadHtml = (htmlContent?: string, filename?: string) => {
+    if (!htmlContent) return;
     
-    const blob = new Blob([htmlResult.html], { type: 'text/html' });
+    const blob = new Blob([htmlContent], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${htmlResult.presentationTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
+    a.download = filename || `${htmlResult?.presentationTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -523,11 +564,11 @@ const GeneratePPTPage = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-2">
-                <Button onClick={copyHtmlToClipboard} variant="outline">
+                <Button onClick={() => copyHtmlToClipboard(htmlResult.html)} variant="outline">
                   <Copy className="h-4 w-4 mr-2" />
                   Copy HTML
                 </Button>
-                <Button onClick={downloadHtml} variant="outline">
+                <Button onClick={() => downloadHtml(htmlResult.html, htmlResult.presentationTitle)} variant="outline">
                   <Download className="h-4 w-4 mr-2" />
                   Download HTML
                 </Button>
@@ -550,6 +591,107 @@ const GeneratePPTPage = () => {
                   />
                 </div>
               )}
+
+              {/* Post-Processing Section */}
+              <div className="border-t pt-6">
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold mb-2">Post-Processing</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Write prompts to improve your presentation. You can enhance colors, typography, animations, layout, or any other aspect.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="improvementPrompt" className="block text-sm font-medium mb-2">
+                      Improvement Prompt
+                    </label>
+                    <Textarea
+                      id="improvementPrompt"
+                      placeholder="Example: Make the colors more vibrant and add smooth slide transitions. Use a darker background with better contrast. Add hover effects to buttons."
+                      className="min-h-[100px]"
+                      value={improvementPrompt}
+                      onChange={(e) => setImprovementPrompt(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={handleImprovePresentation} 
+                      disabled={isImproving || !improvementPrompt.trim()}
+                      className="flex-1"
+                    >
+                      {isImproving ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Improving Presentation...
+                        </>
+                      ) : (
+                        <>
+                          <Palette className="h-4 w-4 mr-2" />
+                          Improve Presentation
+                        </>
+                      )}
+                    </Button>
+                    <Button 
+                      onClick={() => setImprovementPrompt("")} 
+                      variant="outline"
+                      disabled={!improvementPrompt.trim()}
+                    >
+                      Clear
+                    </Button>
+                  </div>
+
+                  {improvedHtmlResult && (
+                    <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex items-center gap-2 text-green-800 mb-2">
+                        <CheckCircle className="h-4 w-4" />
+                        <span className="font-medium">Presentation Improved!</span>
+                      </div>
+                      <p className="text-sm text-green-700 mb-3">
+                        Your presentation has been enhanced based on your prompt. You can now copy or download the improved version.
+                      </p>
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={() => copyHtmlToClipboard(improvedHtmlResult.html)} 
+                          variant="outline" 
+                          size="sm"
+                        >
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copy Improved HTML
+                        </Button>
+                        <Button 
+                          onClick={() => downloadHtml(improvedHtmlResult.html, improvedHtmlResult.presentationTitle)} 
+                          variant="outline" 
+                          size="sm"
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Download Improved HTML
+                        </Button>
+                        <Button 
+                          onClick={() => setShowImprovedPreview(!showImprovedPreview)} 
+                          variant="outline" 
+                          size="sm"
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          {showImprovedPreview ? "Hide Improved Preview" : "Show Improved Preview"}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {showImprovedPreview && improvedHtmlResult && (
+                    <div className="border rounded-lg p-4 bg-gray-50">
+                      <div className="text-sm text-gray-600 mb-2">Improved HTML Preview:</div>
+                      <iframe
+                        srcDoc={improvedHtmlResult.html}
+                        className="w-full h-96 border rounded"
+                        title="Improved HTML Preview"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}
