@@ -71,8 +71,9 @@ const GeneratePPTPage = () => {
   const [showHtmlPreview, setShowHtmlPreview] = useState(false);
   const [improvementPrompt, setImprovementPrompt] = useState("");
   const [isImproving, setIsImproving] = useState(false);
-  const [improvementHistory, setImprovementHistory] = useState<string[]>([]);
   const [currentHtml, setCurrentHtml] = useState<string>("");
+  const [versionHistory, setVersionHistory] = useState<{html: string, prompt: string, timestamp: number}[]>([]);
+  const [currentVersionIndex, setCurrentVersionIndex] = useState<number>(-1);
 
   const models = [
     { value: "openai/gpt-oss-20b", label: "GPT-Oss-20B (Faster)" },
@@ -176,7 +177,12 @@ const GeneratePPTPage = () => {
       if (res.ok) {
         setHtmlResult(data);
         setCurrentHtml(data.html); // Set the current HTML for improvements
-        setImprovementHistory([]); // Reset improvement history
+        setVersionHistory([{
+          html: data.html,
+          prompt: "Initial Generation",
+          timestamp: Date.now()
+        }]); // Initialize version history with initial state
+        setCurrentVersionIndex(0); // Set to initial version
         setError(""); // Clear any previous errors
       } else {
         setError(data.message || "An error occurred while generating HTML");
@@ -212,15 +218,28 @@ const GeneratePPTPage = () => {
       const data = await res.json();
 
       if (res.ok) {
+        // Add to version history (keep last 5 states)
+        const newVersion = {
+          html: data.html,
+          prompt: improvementPrompt,
+          timestamp: Date.now()
+        };
+        
+        setVersionHistory(prev => {
+          const updated = [...prev, newVersion];
+          // Keep only the last 5 versions
+          return updated.slice(-5);
+        });
+        
+        // Update current version index
+        setCurrentVersionIndex(prev => Math.min(prev + 1, 4));
+        
         // Replace the current HTML with the improved version
         setCurrentHtml(data.html);
         setHtmlResult({
           ...htmlResult!,
           html: data.html
         });
-        
-        // Add to improvement history
-        setImprovementHistory(prev => [...prev, improvementPrompt]);
         
         // Clear the improvement prompt for next iteration
         setImprovementPrompt("");
@@ -235,6 +254,20 @@ const GeneratePPTPage = () => {
       setError("An error occurred while improving presentation. Please check your API key configuration.");
     } finally {
       setIsImproving(false);
+    }
+  };
+
+  const restoreVersion = (index: number) => {
+    if (index >= 0 && index < versionHistory.length) {
+      const version = versionHistory[index];
+      setCurrentHtml(version.html);
+      setHtmlResult({
+        ...htmlResult!,
+        html: version.html
+      });
+      setCurrentVersionIndex(index);
+      
+      // Version history is already updated through the versionHistory state
     }
   };
 
@@ -655,21 +688,42 @@ const GeneratePPTPage = () => {
                     </Button>
                   </div>
 
-                  {improvementHistory.length > 0 && (
+                  {versionHistory.length > 0 && (
                     <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                       <div className="flex items-center gap-2 text-blue-800 mb-2">
                         <CheckCircle className="h-4 w-4" />
-                        <span className="font-medium">Improvement History</span>
+                        <span className="font-medium">Version History</span>
                       </div>
                       <p className="text-sm text-blue-700 mb-3">
-                        Your presentation has been improved {improvementHistory.length} time(s). Each improvement builds on the previous one.
+                        Click on any version to restore that state. Current version is highlighted.
                       </p>
                       <div className="space-y-2">
-                        {improvementHistory.map((prompt, index) => (
-                          <div key={index} className="text-xs bg-blue-100 p-2 rounded">
-                            <span className="font-medium">Improvement {index + 1}:</span> {prompt}
+                        {versionHistory.map((version, index) => (
+                          <div 
+                            key={index} 
+                            className={`text-xs p-2 rounded cursor-pointer transition-colors ${
+                              index === currentVersionIndex 
+                                ? 'bg-blue-200 border border-blue-300' 
+                                : 'bg-blue-100 hover:bg-blue-150'
+                            }`}
+                            onClick={() => restoreVersion(index)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium">
+                                {index === 0 ? "Initial Generation" : `Improvement ${index}`}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {new Date(version.timestamp).toLocaleTimeString()}
+                              </span>
+                            </div>
+                            <div className="text-xs text-gray-600 mt-1">
+                              {version.prompt}
+                            </div>
                           </div>
                         ))}
+                      </div>
+                      <div className="mt-3 text-xs text-gray-500">
+                        Showing last {versionHistory.length} versions. Click to restore any previous state.
                       </div>
                     </div>
                   )}
