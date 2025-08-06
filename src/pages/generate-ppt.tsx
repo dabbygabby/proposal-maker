@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AlertCircle, Settings, ChevronDown, ChevronRight, FileText, Loader2 } from "lucide-react";
+import { AlertCircle, Settings, ChevronDown, ChevronRight, FileText, Loader2, Palette, Copy, Eye, Download } from "lucide-react";
 
 interface Slide {
   id: string;
@@ -26,23 +26,49 @@ interface SystemPrompt {
   isActive: boolean;
 }
 
+interface DesignLibrary {
+  _id: string;
+  name: string;
+  description: string;
+  cssVariables: string;
+  analysisResult: string;
+  systemPromptId: {
+    _id: string;
+    name: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface JsonResponse {
   slides: Slide[];
   totalSlides: number;
   presentationTitle: string;
 }
 
+interface HtmlResponse {
+  html: string;
+  designLibraryName: string;
+  presentationTitle: string;
+  totalSlides: number;
+}
+
 const GeneratePPTPage = () => {
   const { status } = useSession();
   const router = useRouter();
   const [inputText, setInputText] = useState("");
-  const [selectedModel, setSelectedModel] = useState("openai/gpt-oss-20b");
+  const [selectedModel, setSelectedModel] = useState("openai/gpt-oss-120b");
   const [selectedPrompt, setSelectedPrompt] = useState<string>("");
   const [systemPrompts, setSystemPrompts] = useState<SystemPrompt[]>([]);
+  const [designLibraries, setDesignLibraries] = useState<DesignLibrary[]>([]);
+  const [selectedDesignLibrary, setSelectedDesignLibrary] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingHtml, setIsGeneratingHtml] = useState(false);
   const [jsonResult, setJsonResult] = useState<JsonResponse | null>(null);
+  const [htmlResult, setHtmlResult] = useState<HtmlResponse | null>(null);
   const [error, setError] = useState("");
   const [expandedSlides, setExpandedSlides] = useState<Set<string>>(new Set());
+  const [showHtmlPreview, setShowHtmlPreview] = useState(false);
 
   const models = [
     { value: "openai/gpt-oss-20b", label: "GPT-Oss-20B (Faster)" },
@@ -54,6 +80,7 @@ const GeneratePPTPage = () => {
       router.push("/login");
     } else if (status === "authenticated") {
       fetchSystemPrompts();
+      fetchDesignLibraries();
     }
   }, [status, router]);
 
@@ -69,6 +96,18 @@ const GeneratePPTPage = () => {
     }
   };
 
+  const fetchDesignLibraries = async () => {
+    try {
+      const res = await fetch("/api/design-library");
+      if (res.ok) {
+        const data = await res.json();
+        setDesignLibraries(data);
+      }
+    } catch (error) {
+      console.error("Error fetching design libraries:", error);
+    }
+  };
+
   const handleGenerate = async () => {
     if (!inputText.trim()) {
       setError("Please enter some text to convert");
@@ -78,6 +117,7 @@ const GeneratePPTPage = () => {
     setIsGenerating(true);
     setError("");
     setJsonResult(null);
+    setHtmlResult(null);
 
     try {
       const res = await fetch("/api/text-to-json", {
@@ -106,6 +146,65 @@ const GeneratePPTPage = () => {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleGenerateHtml = async () => {
+    if (!jsonResult || !selectedDesignLibrary) {
+      setError("Please generate JSON first and select a design library");
+      return;
+    }
+
+    setIsGeneratingHtml(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/generate-html-presentation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonData: jsonResult,
+          designLibraryId: selectedDesignLibrary
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setHtmlResult(data);
+      } else {
+        setError(data.message || "An error occurred while generating HTML");
+      }
+    } catch (error: any) {
+      console.error("Error generating HTML:", error);
+      setError("An error occurred while generating HTML");
+    } finally {
+      setIsGeneratingHtml(false);
+    }
+  };
+
+  const copyHtmlToClipboard = async () => {
+    if (!htmlResult?.html) return;
+    
+    try {
+      await navigator.clipboard.writeText(htmlResult.html);
+      // You could add a toast notification here
+      alert("HTML copied to clipboard!");
+    } catch (error) {
+      console.error("Error copying to clipboard:", error);
+      setError("Failed to copy HTML to clipboard");
+    }
+  };
+
+  const downloadHtml = () => {
+    if (!htmlResult?.html) return;
+    
+    const blob = new Blob([htmlResult.html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${htmlResult.presentationTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const toggleSlideExpansion = (slideId: string) => {
@@ -138,7 +237,7 @@ const GeneratePPTPage = () => {
       <div className="flex flex-col gap-4 mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <FileText className="h-8 w-8" />
-          <h1 className="text-3xl font-bold">Generate PowerPoint JSON</h1>
+          <h1 className="text-3xl font-bold">Generate PowerPoint Presentation</h1>
         </div>
 
         {error && (
@@ -267,65 +366,164 @@ const GeneratePPTPage = () => {
         </Card>
 
         {jsonResult && (
+          <>
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Select Design Language</CardTitle>
+                <CardDescription>
+                  Choose a design library to apply to your presentation
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label htmlFor="designLibrary" className="block text-sm font-medium mb-2">
+                    Design Library
+                  </label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="w-full justify-between">
+                        {selectedDesignLibrary 
+                          ? designLibraries.find(d => d._id === selectedDesignLibrary)?.name || "Select Design Library"
+                          : "Select Design Library"
+                        }
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-full">
+                      {designLibraries.map((library) => (
+                        <DropdownMenuItem
+                          key={library._id}
+                          onClick={() => setSelectedDesignLibrary(library._id)}
+                          className={selectedDesignLibrary === library._id ? "bg-neutral-100" : ""}
+                        >
+                          {library.name}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                <Button 
+                  onClick={handleGenerateHtml} 
+                  disabled={isGeneratingHtml || !selectedDesignLibrary}
+                  className="w-full"
+                >
+                  {isGeneratingHtml ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Generating HTML...
+                    </>
+                  ) : (
+                    <>
+                      <Palette className="h-4 w-4 mr-2" />
+                      Generate HTML Presentation
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Generated JSON Structure</CardTitle>
+                <CardDescription>
+                  {jsonResult.presentationTitle} - {jsonResult.totalSlides} slides generated
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {jsonResult.slides.map((slide, index) => (
+                    <Card key={slide.id} className="border-neutral-200">
+                      <CardHeader className="pb-3">
+                        <div 
+                          className="flex items-center justify-between cursor-pointer"
+                          onClick={() => toggleSlideExpansion(slide.id)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{getSlideTypeIcon(slide.type)}</span>
+                            <span className="font-medium">Slide {index + 1}: {slide.title}</span>
+                            <span className="text-sm text-neutral-500">({slide.type})</span>
+                          </div>
+                          {expandedSlides.has(slide.id) ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
+                          )}
+                        </div>
+                      </CardHeader>
+                      {expandedSlides.has(slide.id) && (
+                        <CardContent className="pt-0">
+                          <div className="space-y-3">
+                            <div>
+                              <span className="font-medium text-sm">Content:</span>
+                              <p className="text-sm text-neutral-600 mt-1">{slide.content}</p>
+                            </div>
+                            
+                            {slide.bullets && slide.bullets.length > 0 && (
+                              <div>
+                                <span className="font-medium text-sm">Bullet Points:</span>
+                                <ul className="list-disc list-inside text-sm text-neutral-600 mt-1 space-y-1">
+                                  {slide.bullets.map((bullet, idx) => (
+                                    <li key={idx}>{bullet}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            
+                            {slide.imagePlaceholder && (
+                              <div>
+                                <span className="font-medium text-sm">Image Placeholder:</span>
+                                <p className="text-sm text-neutral-600 mt-1 italic">{slide.imagePlaceholder}</p>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      )}
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
+
+        {htmlResult && (
           <Card>
             <CardHeader>
-              <CardTitle>Generated JSON Structure</CardTitle>
+              <CardTitle>Generated HTML Presentation</CardTitle>
               <CardDescription>
-                {jsonResult.presentationTitle} - {jsonResult.totalSlides} slides generated
+                {htmlResult.presentationTitle} - {htmlResult.totalSlides} slides using {htmlResult.designLibraryName}
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {jsonResult.slides.map((slide, index) => (
-                  <Card key={slide.id} className="border-neutral-200">
-                    <CardHeader className="pb-3">
-                      <div 
-                        className="flex items-center justify-between cursor-pointer"
-                        onClick={() => toggleSlideExpansion(slide.id)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{getSlideTypeIcon(slide.type)}</span>
-                          <span className="font-medium">Slide {index + 1}: {slide.title}</span>
-                          <span className="text-sm text-neutral-500">({slide.type})</span>
-                        </div>
-                        {expandedSlides.has(slide.id) ? (
-                          <ChevronDown className="h-4 w-4" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4" />
-                        )}
-                      </div>
-                    </CardHeader>
-                    {expandedSlides.has(slide.id) && (
-                      <CardContent className="pt-0">
-                        <div className="space-y-3">
-                          <div>
-                            <span className="font-medium text-sm">Content:</span>
-                            <p className="text-sm text-neutral-600 mt-1">{slide.content}</p>
-                          </div>
-                          
-                          {slide.bullets && slide.bullets.length > 0 && (
-                            <div>
-                              <span className="font-medium text-sm">Bullet Points:</span>
-                              <ul className="list-disc list-inside text-sm text-neutral-600 mt-1 space-y-1">
-                                {slide.bullets.map((bullet, idx) => (
-                                  <li key={idx}>{bullet}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                          
-                          {slide.imagePlaceholder && (
-                            <div>
-                              <span className="font-medium text-sm">Image Placeholder:</span>
-                              <p className="text-sm text-neutral-600 mt-1 italic">{slide.imagePlaceholder}</p>
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    )}
-                  </Card>
-                ))}
+            <CardContent className="space-y-4">
+              <div className="flex gap-2">
+                <Button onClick={copyHtmlToClipboard} variant="outline">
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy HTML
+                </Button>
+                <Button onClick={downloadHtml} variant="outline">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download HTML
+                </Button>
+                <Button 
+                  onClick={() => setShowHtmlPreview(!showHtmlPreview)} 
+                  variant="outline"
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  {showHtmlPreview ? "Hide Preview" : "Show Preview"}
+                </Button>
               </div>
+
+              {showHtmlPreview && (
+                <div className="border rounded-lg p-4 bg-gray-50">
+                  <div className="text-sm text-gray-600 mb-2">HTML Preview:</div>
+                  <iframe
+                    srcDoc={htmlResult.html}
+                    className="w-full h-96 border rounded"
+                    title="HTML Preview"
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
         )}

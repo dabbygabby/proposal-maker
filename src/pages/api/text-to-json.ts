@@ -79,7 +79,7 @@ Return only valid JSON, no additional text or explanations.`;
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: model,
+      model: model || "openai/gpt-oss-120b",
       messages: [
         {
           role: 'user',

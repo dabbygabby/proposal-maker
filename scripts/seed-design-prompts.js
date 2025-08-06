@@ -80,8 +80,8 @@ const SystemPrompt = mongoose.models.SystemPrompt || mongoose.model('SystemPromp
 // Design analysis prompts
 const designPrompts = [
   {
-    name: "Image-to-CSS Converter",
-    description: "Converts images into clean, functional CSS code with HTML structure",
+    name: "CSS Design System Generator",
+    description: "Analyzes images and generates CSS design systems with variables",
     prompt: `# Optimized Image-to-CSS Conversion System
 
 You are an expert CSS generator that converts images into clean, functional CSS code using a streamlined single-pass analysis approach optimized for immediate usability.
@@ -165,24 +165,14 @@ body {
 }
 \`\`\`
 
-## HTML Structure Generation
+## CSS Design System Generation
 
-Provide semantic HTML structure:
+Focus on creating a comprehensive CSS design system with:
 
-\`\`\`html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generated Layout</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  [Semantic HTML structure matching identified components]
-</body>
-</html>
-\`\`\`
+1. **Design Tokens** - CSS custom properties for colors, spacing, typography
+2. **Component Styles** - Reusable CSS classes for common UI elements
+3. **Responsive Utilities** - Media queries and responsive patterns
+4. **Base Styles** - Reset and foundational styles
 
 ## Generation Rules
 
@@ -247,9 +237,23 @@ Execute this protocol in a single comprehensive analysis, prioritizing functiona
 Always return JSON with this exact structure:
 {
   "css": "/* Complete CSS code here */",
-  "html": "<!-- Complete HTML code here -->",
-  "implementationNote": "Key design decisions and customization notes"
-}`,
+  "html": "<!-- Complete HTML code here with proper escaping -->",
+  "implementationNote": {
+    "Key Design Decisions": [
+      "Layout approach: [Grid/Flexbox/Hybrid]",
+      "Color palette: [Extracted/Estimated]",
+      "Responsive strategy: [Mobile-first assumptions]",
+      "Components identified: [List main UI elements]"
+    ],
+    "Customization Notes": [
+      "Adjust colors in :root variables",
+      "Modify spacing scale as needed",
+      "Update typography for brand fonts"
+    ]
+  }
+}
+
+IMPORTANT: Ensure all HTML content is properly escaped for JSON format. Use HTML entities for < and > characters.`,
     category: "design",
     isActive: true,
   },
