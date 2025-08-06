@@ -67,7 +67,7 @@ Guidelines:
 Text to analyze:
 {text}
 
-Return only valid JSON, no additional text or explanations.`;
+IMPORTANT: Return ONLY the raw JSON object. Do not wrap in markdown code blocks, do not add explanations, do not include any text before or after the JSON. Just the pure JSON object.`;
     
     prompt = prompt.replace('{text}', text);
   }
@@ -87,7 +87,8 @@ Return only valid JSON, no additional text or explanations.`;
         }
       ],
       max_tokens: 4000,
-      temperature: 0.7
+      temperature: 0.7,
+      response_format: { type: "json_object" }
     })
   });
 
@@ -102,9 +103,26 @@ Return only valid JSON, no additional text or explanations.`;
     throw new Error('No response content from Groq API');
   }
 
+  // Clean the content to handle markdown code blocks
+  let cleanedContent = content.trim();
+  
+  // Remove markdown code block markers if present
+  if (cleanedContent.startsWith('```json')) {
+    cleanedContent = cleanedContent.replace(/^```json\s*/, '');
+  }
+  if (cleanedContent.startsWith('```')) {
+    cleanedContent = cleanedContent.replace(/^```\s*/, '');
+  }
+  if (cleanedContent.endsWith('```')) {
+    cleanedContent = cleanedContent.replace(/\s*```$/, '');
+  }
+  
+  // Remove any leading/trailing whitespace
+  cleanedContent = cleanedContent.trim();
+
   try {
     // Try to parse the JSON response
-    const jsonResponse = JSON.parse(content);
+    const jsonResponse = JSON.parse(cleanedContent);
     
     // Validate and enhance the response
     if (!jsonResponse.slides || !Array.isArray(jsonResponse.slides)) {
@@ -126,6 +144,7 @@ Return only valid JSON, no additional text or explanations.`;
   } catch (parseError) {
     console.error('Error parsing JSON response:', parseError);
     console.error('Raw response:', content);
+    console.error('Cleaned content:', cleanedContent);
     throw new Error('Invalid JSON response from AI model');
   }
 }
