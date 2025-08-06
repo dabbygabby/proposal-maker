@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>STRATEGIC INTEL REPORT</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+      
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Share Tech Mono', monospace;
+        line-height: 1.4;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+        color: #00d4ff;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+          radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 40% 40%, rgba(0, 212, 255, 0.05) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .classification {
+        background: linear-gradient(90deg, #ff0000, #ff4444, #ff0000);
+        color: white;
+        padding: 8px;
+        font-weight: bold;
+        font-size: 14px;
+        margin: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        position: relative;
+        z-index: 1000;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        font-family: 'Orbitron', monospace;
+        text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+      }
+
+      .classification::before {
+        content: "CLASSIFIED: TOP SECRET - EYES ONLY";
+        position: absolute;
+        white-space: nowrap;
+        animation: marquee 15s linear infinite;
+        animation-direction: reverse;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 1001;
+      }
+
+      @keyframes marquee {
+        0% {
+          transform: translateX(100%) translateY(-50%);
+        }
+        100% {
+          transform: translateX(-100%) translateY(-50%);
+        }
+      }
+
+      .header {
+        background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+        color: #00d4ff;
+        padding: 20px;
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        z-index: 800;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid #00d4ff;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+        animation: scan 3s infinite;
+      }
+
+      @keyframes scan {
+        0% { left: -100%; }
+        100% { left: 100%; }
+      }
+
+      .header-title {
+        flex-grow: 1;
+        text-align: center;
+        font-family: 'Orbitron', monospace;
+        font-size: 28px;
+        font-weight: 900;
+        text-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+        letter-spacing: 3px;
+      }
+
+      .container {
+        max-width: none;
+        margin: 0;
+        background: transparent;
+        padding: 30px;
+        position: relative;
+        z-index: 2;
+      }
+
+      .metadata {
+        background: rgba(0, 0, 0, 0.8);
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        font-size: 14px;
+        border: 1px solid #00d4ff;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .metadata::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, #00d4ff, #0099cc, #00d4ff);
+        animation: flow 2s infinite;
+      }
+
+      @keyframes flow {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+      }
+
+      .executive-summary {
+        background: rgba(0, 0, 0, 0.9);
+        padding: 25px;
+        border-radius: 12px;
+        border: 2px solid #ff6b35;
+        margin: 20px 0;
+        font-size: 16px;
+        box-shadow: 0 0 30px rgba(255, 107, 53, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .executive-summary::before {
+        content: '⚠️ CRITICAL ALERT';
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 12px;
+        color: #ff6b35;
+        font-weight: bold;
+        animation: blink 1s infinite;
+      }
+
+      @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0.3; }
+      }
+
+      .executive-summary h2 {
+        margin-top: 0;
+        border: none;
+        color: #ff6b35;
+        font-family: 'Orbitron', monospace;
+        font-size: 20px;
+        margin-bottom: 15px;
+        text-shadow: 0 0 10px rgba(255, 107, 53, 0.8);
+      }
+
+      .critical-alert {
+        background: rgba(255, 0, 0, 0.1);
+        padding: 25px;
+        border: 2px solid #ff0000;
+        border-radius: 12px;
+        margin: 20px 0;
+        box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .critical-alert::before {
+        content: '🚨 EMERGENCY PROTOCOL';
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 12px;
+        color: #ff0000;
+        font-weight: bold;
+        animation: emergency 0.5s infinite;
+      }
+
+      @keyframes emergency {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0.3; }
+      }
+
+      .critical-alert h4 {
+        color: #ff0000;
+        margin: 0 0 15px 0;
+        font-size: 18px;
+        font-weight: bold;
+        font-family: 'Orbitron', monospace;
+        text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+      }
+
+      .threat-level {
+        display: inline-block;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 14px;
+        margin: 10px 0;
+        font-family: 'Orbitron', monospace;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        animation: pulse 2s infinite;
+      }
+
+      .high {
+        background: linear-gradient(135deg, #ff0000, #cc0000);
+        color: white;
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      }
+
+      .medium {
+        background: linear-gradient(135deg, #ff8800, #cc6600);
+        color: white;
+        box-shadow: 0 0 20px rgba(255, 136, 0, 0.5);
+      }
+
+      .low {
+        background: linear-gradient(135deg, #00ff00, #00cc00);
+        color: black;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+      }
+
+      h1 {
+        margin: 30px 0;
+        font-weight: 900;
+        border-bottom: 3px solid #00d4ff;
+        color: #00d4ff;
+        padding-bottom: 15px;
+        font-size: 32px;
+        font-family: 'Orbitron', monospace;
+        text-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+        letter-spacing: 2px;
+        position: relative;
+      }
+
+      h1::after {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #00d4ff, #0099cc, #00d4ff);
+        animation: flow 3s infinite;
+      }
+
+      h2 {
+        color: #00d4ff;
+        border-bottom: 2px solid #00d4ff;
+        padding-bottom: 10px;
+        margin-top: 30px;
+        font-size: 24px;
+        font-family: 'Orbitron', monospace;
+        text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+        letter-spacing: 1px;
+      }
+
+      h3 {
+        color: #00d4ff;
+        margin-top: 25px;
+        font-size: 18px;
+        background: rgba(0, 212, 255, 0.1);
+        padding: 15px;
+        border-left: 4px solid #00d4ff;
+        border-radius: 0 8px 8px 0;
+        font-family: 'Orbitron', monospace;
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+      }
+
+      .key-findings-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 25px;
+        margin: 25px 0;
+      }
+
+      .finding-card {
+        background: rgba(0, 0, 0, 0.8);
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+        border: 1px solid #00d4ff;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .finding-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #00d4ff, #0099cc, #00d4ff);
+        animation: flow 2s infinite;
+      }
+
+      .finding-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 40px rgba(0, 212, 255, 0.4);
+        border-color: #00ffff;
+      }
+
+      .finding-card h3 {
+        color: #00d4ff;
+        margin: 0 0 20px 0;
+        font-size: 18px;
+        font-weight: 700;
+        border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+        padding-bottom: 10px;
+        font-family: 'Orbitron', monospace;
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+      }
+
+      .finding-card p {
+        margin: 12px 0;
+        line-height: 1.6;
+        color: #b0e0e6;
+      }
+
+      .finding-card ul {
+        margin: 15px 0;
+        padding-left: 25px;
+      }
+
+      .finding-card li {
+        margin: 8px 0;
+        line-height: 1.5;
+        color: #b0e0e6;
+      }
+
+      .key-finding {
+        background: rgba(0, 212, 255, 0.1);
+        padding: 20px;
+        margin: 20px 0;
+        border-left: 4px solid #00d4ff;
+        border-radius: 0 8px 8px 0;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+      }
+
+      .key-finding h3 {
+        color: #00d4ff;
+        margin-top: 0;
+        font-family: 'Orbitron', monospace;
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 25px 0;
+        background: rgba(0, 0, 0, 0.8);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+      }
+
+      th, td {
+        border: 1px solid #00d4ff;
+        padding: 15px;
+        text-align: left;
+        color: #b0e0e6;
+      }
+
+      th {
+        background: linear-gradient(135deg, #004e92 0%, #0066cc 100%);
+        color: #00d4ff;
+        font-weight: 700;
+        font-family: 'Orbitron', monospace;
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+        letter-spacing: 1px;
+      }
+
+      tr:nth-child(even) {
+        background: rgba(0, 212, 255, 0.05);
+      }
+
+      tr:hover {
+        background: rgba(0, 212, 255, 0.1);
+        transition: background 0.3s ease;
+      }
+
+      .threat-graph {
+        margin: 25px 0;
+        padding: 25px;
+        background: rgba(0, 0, 0, 0.9);
+        border-radius: 12px;
+        color: #00d4ff;
+        border: 2px solid #00d4ff;
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .threat-graph::before {
+        content: '📊 THREAT MATRIX';
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 12px;
+        color: #00d4ff;
+        font-weight: bold;
+      }
+
+      .threat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+      }
+
+      .threat-count {
+        font-size: 24px;
+        font-weight: bold;
+        font-family: 'Orbitron', monospace;
+        text-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+      }
+
+      .threat-velocity {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .velocity-graph {
+        width: 120px;
+        height: 50px;
+        background: rgba(0, 212, 255, 0.1);
+        border-radius: 6px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #00d4ff;
+      }
+
+      .velocity-line {
+        position: absolute;
+        bottom: 8px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #00ff00 0%, #ffff00 50%, #ff0000 100%);
+        border-radius: 2px;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+      }
+
+      .velocity-dot {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 10px;
+        height: 10px;
+        background: #ff0000;
+        border-radius: 50%;
+        box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+        animation: pulse 1s infinite;
+      }
+
+      .threat-bar {
+        width: 100%;
+        height: 40px;
+        background: rgba(0, 212, 255, 0.1);
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 15px;
+        border: 1px solid #00d4ff;
+      }
+
+      .threat-segments {
+        display: flex;
+        height: 100%;
+      }
+
+      .segment {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        font-family: 'Orbitron', monospace;
+        text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        transition: all 0.3s ease;
+      }
+
+      .segment:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      }
+
+      .segment-normal {
+        background: linear-gradient(135deg, #00ff00, #00cc00);
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+      }
+
+      .segment-low {
+        background: linear-gradient(135deg, #88ff00, #66cc00);
+        box-shadow: 0 0 10px rgba(136, 255, 0, 0.5);
+      }
+
+      .segment-medium-low {
+        background: linear-gradient(135deg, #ffff00, #cccc00);
+        box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+      }
+
+      .segment-medium {
+        background: linear-gradient(135deg, #ff8800, #cc6600);
+        box-shadow: 0 0 10px rgba(255, 136, 0, 0.5);
+      }
+
+      .segment-high {
+        background: linear-gradient(135deg, #ff4400, #cc3300);
+        box-shadow: 0 0 10px rgba(255, 68, 0, 0.5);
+      }
+
+      .segment-extremely-high {
+        background: linear-gradient(135deg, #ff0000, #cc0000);
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+      }
+
+      .threat-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: rgba(0, 212, 255, 0.8);
+        font-family: 'Share Tech Mono', monospace;
+      }
+
+      .threat-label {
+        text-align: center;
+        flex: 1;
+        padding: 5px;
+      }
+
+      ul, ol {
+        padding-left: 25px;
+        list-style-position: outside;
+      }
+
+      li {
+        margin: 10px 0;
+        list-style-type: disc;
+        padding-left: 5px;
+        color: #b0e0e6;
+      }
+
+      ul li {
+        list-style-type: disc;
+      }
+
+      ol li {
+        list-style-type: decimal;
+      }
+
+      .source-reliability {
+        font-size: 14px;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        border: 1px solid #00d4ff;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+      }
+
+      .recommendations {
+        background: rgba(0, 255, 0, 0.1);
+        padding: 25px;
+        border-radius: 12px;
+        border-left: 6px solid #00ff00;
+        margin: 25px 0;
+        box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+        border: 1px solid #00ff00;
+      }
+
+      .operational-implications {
+        background: rgba(255, 136, 0, 0.1);
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        border-left: 4px solid #ff8800;
+        box-shadow: 0 0 20px rgba(255, 136, 0, 0.2);
+        border: 1px solid #ff8800;
+      }
+
+      .timestamp {
+        font-style: italic;
+        color: #888;
+        font-size: 14px;
+        text-align: right;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #00d4ff;
+        font-family: 'Share Tech Mono', monospace;
+      }
+
+      a {
+        color: #00d4ff;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      a:hover {
+        color: #00ffff;
+        text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+      }
+
+      /* Desktop Layout - 3 Equal Columns */
+      @media (min-width: 768px) {
+        .key-findings-grid {
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 30px;
+        }
+      }
+
+      /* Tablet Layout - 2 Columns */
+      @media (min-width: 480px) and (max-width: 767px) {
+        .key-findings-grid {
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+        }
+      }
+
+      /* Mobile Layout */
+      @media (max-width: 479px) {
+        .header-title {
+          font-size: 20px;
+        }
+        
+        .container {
+          padding: 15px;
+        }
+        
+        .finding-card {
+          padding: 15px;
+        }
+      }
+
+      /* Glowing effects */
+      .glow {
+        text-shadow: 0 0 10px currentColor;
+      }
+
+      /* Matrix rain effect */
+      .matrix-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.1;
+      }
+
+      .matrix-char {
+        position: absolute;
+        color: #00d4ff;
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 14px;
+        animation: matrix-fall 3s linear infinite;
+      }
+
+      @keyframes matrix-fall {
+        0% {
+          transform: translateY(-100vh);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(100vh);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="matrix-bg" id="matrix-bg"></div>
+    
+    <div class="classification"></div>
+
+    <div class="header">
+      <div class="header-title">
+        <span class="glow">STRATEGIC INTEL REPORT</span>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="metadata" style="margin-top: -10px">
+        <strong>Report ID:</strong> INTEL-PAK-0806-2025 |
+        <strong>Classification:</strong> CONFIDENTIAL |
+        <strong>Distribution:</strong> Limited Access<br />
+        <strong>Analysis Period:</strong> August 5, 2025 (00:00) - August 6,
+        2025 (23:59)
+      </div>
+
+      <div class="executive-summary">
+        <h2 style="margin-top: 0; border: none; color: #ff6b35">
+          EXECUTIVE SUMMARY
+        </h2>
+        Pakistani military leadership has escalated rhetorical threats against
+        India through coordinated media messaging, with DG ISPR issuing specific
+        warnings about strikes on "eastern India." Field Marshal Asim Munir's
+        recent promotion and Kashmir Solidarity Day statements indicate
+        Pakistan's military is positioning for potential future confrontation
+        while denying presidential ambitions to maintain current power
+        structure.
+      </div>
+
+      <div class="critical-alert">
+        <h4>CRITICAL THREAT ASSESSMENT</h4>
+        <div class="threat-level high">THREAT LEVEL: HIGH</div>
+        <p>
+          <strong>Immediate Strategic Concern:</strong> DG ISPR's August 6, 2025
+          statement to The Economist warning of "deep strikes in eastern India"
+          represents a significant escalation in Pakistani military rhetoric,
+          specifically targeting India's eastern military and economic centers
+          including potential strikes from "east of India."
+        </p>
+
+        <div class="threat-graph">
+          <div class="threat-bar">
+            <div class="threat-segments">
+              <div class="segment segment-normal" style="width: 17.2%">
+                2,438
+              </div>
+              <div class="segment segment-low" style="width: 4%">568</div>
+              <div class="segment segment-medium-low" style="width: 7.1%">
+                1,004
+              </div>
+              <div class="segment segment-medium" style="width: 26.6%">
+                3,784
+              </div>
+              <div class="segment segment-high" style="width: 12.3%">1,746</div>
+              <div class="segment segment-extremely-high" style="width: 9.5%">
+                1,348
+              </div>
+            </div>
+          </div>
+
+          <div class="threat-labels">
+            <div class="threat-label">Normal<br />2,438</div>
+            <div class="threat-label">Low<br />568</div>
+            <div class="threat-label">Medium Low<br />1,004</div>
+            <div class="threat-label">Medium<br />3,784</div>
+            <div class="threat-label">High<br />1,746</div>
+            <div class="threat-label">Extremely High<br />1,348</div>
+          </div>
+        </div>
+      </div>
+
+      <h2>KEY FINDINGS</h2>
+
+      <div class="key-findings-grid">
+        <div class="finding-card">
+          <h3>1. DG ISPR's Eastern India Strike Warning</h3>
+          <p>
+            <strong>Source:</strong> Multiple Pakistani channels reporting DG
+            ISPR Lt. Gen. Ahmed Sharif Chaudhry interview with The Economist
+          </p>
+          <p>
+            <strong>Key Statement:</strong>
+            <em
+              >"This time, we will begin from the east of India. The response
+              will start with a deep strike inside India. India needs to
+              understand that they can be targeted anywhere."</em
+            >
+          </p>
+          <p>
+            <strong>Strategic Implication:</strong> Shift from traditional
+            western front focus to eastern India targeting, potentially
+            indicating:
+          </p>
+          <ul>
+            <li>Targeting of Eastern Command installations</li>
+            <li>Economic hubs in Kolkata, Bhubaneswar corridor</li>
+            <li>Strategic assets in northeast region</li>
+            <li>Naval facilities in Bay of Bengal</li>
+          </ul>
+        </div>
+
+        <div class="finding-card">
+          <h3>
+            2. Field Marshal Asim Munir's Kashmir Solidarity Day Statements
+          </h3>
+          <p><strong>Date:</strong> August 5, 2025 (Youm-e-Istehsal)</p>
+          <p>
+            <strong>Coverage:</strong> All major Pakistani channels (ARY News,
+            Geo News, Samaa TV, Dawn News)
+          </p>
+          <p><strong>Key Messages:</strong></p>
+          <ul>
+            <li>
+              Reaffirmed "unwavering solidarity with the resilient and
+              courageous people of Indian Illegally Occupied Jammu and Kashmir"
+            </li>
+            <li>
+              Military siege and human rights violations rhetoric intensified
+            </li>
+            <li>Coordinated messaging across all service chiefs</li>
+            <li>Emphasis on "legitimate struggle" terminology</li>
+          </ul>
+        </div>
+
+      <div class="key-finding">
+        <h3>3. Denial of Presidential Ambitions Campaign</h3>
+        <p>
+          <strong>Strategic Context:</strong> Coordinated media campaign to deny
+          rumors of Field Marshal Munir seeking presidency
+        </p>
+        <p><strong>Analysis:</strong> This denial campaign indicates:</p>
+        <ul>
+          <li>Military's intention to maintain current power structure</li>
+          <li>
+            Preference for behind-the-scenes control over direct political rule
+          </li>
+          <li>Stability of current military-civilian arrangement</li>
+          <li>Focus on military operations rather than political transition</li>
+        </ul>
+      </div>
+
+      <h2>CHANNEL-SPECIFIC ANALYSIS</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>News Channel</th>
+            <th>Primary Focus (Aug 5-6)</th>
+            <th>India-Related Content</th>
+            <th>Strategic Relevance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background-color: rgba(255, 0, 0, 0.1)">
+            <td><strong>ARY News</strong></td>
+            <td>Kashmir Solidarity Day, Presidential rumors denial</td>
+            <td>High - Direct coverage of military statements</td>
+            <td>Primary source for official military messaging</td>
+          </tr>
+          <tr style="background-color: rgba(255, 136, 0, 0.1)">
+            <td><strong>Geo News</strong></td>
+            <td>Domestic politics, Kashmir observance</td>
+            <td>Medium - Standard solidarity messaging</td>
+            <td>Gauge public sentiment</td>
+          </tr>
+          <tr style="background-color: rgba(255, 136, 0, 0.1)">
+            <td><strong>Samaa TV</strong></td>
+            <td>PTI protests, Kashmir day</td>
+            <td>Medium - Political context</td>
+            <td>Domestic stability indicator</td>
+          </tr>
+          <tr style="background-color: rgba(255, 0, 0, 0.1)">
+            <td><strong>Dawn News/PTV</strong></td>
+            <td>Official government positions</td>
+            <td>High - Policy statements</td>
+            <td>Government-military coordination</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h1>APPENDIX</h1>
+
+      <h2>DETAILED SOURCE REFERENCES - AUGUST 5-6, 2025 ONLY</h2>
+
+      <div
+        style="
+          background: rgba(0, 0, 0, 0.8);
+          padding: 25px;
+          border-radius: 8px;
+          font-size: 14px;
+          border: 1px solid #00d4ff;
+          box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        "
+      >
+        <h3>Current Intelligence Sources (August 5-6, 2025)</h3>
+
+        <p>
+          <strong
+            >August 6, 2025 - DG ISPR Presidential Denial & Eastern India
+            Threat:</strong
+          >
+        </p>
+        <ul>
+          <li>
+            <a
+              href="https://en.dailypakistan.com.pk/06-Aug-2025/dg-ispr-clears-air-on-reports-about-field-marshal-asim-munir-becoming-president"
+              target="_blank"
+              rel="noopener"
+              >Daily Pakistan - DG ISPR Interview with The Economist (August 6,
+              2025)</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://www.nation.com.pk/06-Aug-2025/ccp-releases-draft-report-on-fertiliser-industry-seeks-public-feedback"
+              target="_blank"
+              rel="noopener"
+              >The Nation - DG ISPR Dismisses Presidential Rumors (August 6,
+              2025)</a
+            >
+          </li>
+        </ul>
+
+        <p>
+          <strong
+            >August 5, 2025 - Youm-e-Istehsal Kashmir Solidarity Day:</strong
+          >
+        </p>
+        <ul>
+          <li>
+            <a
+              href="https://www.nation.com.pk/05-Aug-2025/pak-armed-forces-show-solidarity-with-kashmiris"
+              target="_blank"
+              rel="noopener"
+              >The Nation - Armed Forces Kashmir Solidarity Statement (August 5,
+              2025)</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://dailytimes.com.pk/1348501/kashmir-siege-day-pakistan-army-stands-firm-with-kashmiris/"
+              target="_blank"
+              rel="noopener"
+              >Daily Times - Kashmir Siege Day Coverage (August 5, 2025)</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://pakobserver.net/august-5-is-a-day-of-deep-pain-for-every-pakistani-azma/"
+              target="_blank"
+              rel="noopener"
+              >Pakistan Observer - Provincial Minister Statement (August 5,
+              2025)</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://pakobserver.net/mucp-hosts-seminar-on-youm-e-istehsal-to-express-solidarity-with-kashmirs/"
+              target="_blank"
+              rel="noopener"
+              >Pakistan Observer - Religious Council Seminar (August 5, 2025)</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://dailytimes.com.pk/1347636/pakistan-reaffirms-support-for-kashmiris-struggle-six-years-on/"
+              target="_blank"
+              >Daily Times - Pakistan's Kashmir Support Analysis (August 3,
+              2025)</a
+            >
+          </li>
+        </ul>
+
+        <p><strong>International Coverage of August 5 Events:</strong></p>
+        <ul>
+          <li>
+            <a
+              href="https://www.aljazeera.com/news/2025/8/5/anti-india-rallies-in-pakistan-administered-kashmir-over-disputed-status"
+              target="_blank"
+              >Al Jazeera - Anti-India Rallies in Pakistan-administered Kashmir
+              (August 5, 2025)</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://www.globalsecurity.org/military/library/news/2025/08/mil-250805-pakistan-mfa01.htm"
+              target="_blank"
+              >Pakistan MFA - Youm-e-Istehsal Official Statement (August 5,
+              2025)</a
+            >
+          </li>
+        </ul>
+
+        <p><strong>Pre-Event Planning Coverage:</strong></p>
+        <ul>
+          <li>
+            <a
+              href="https://24newshd.tv/04-Aug-2025/pakistan-to-mark-august-5-as-youm-e-istehsal-kashmir-with-nationwide-solidarity-events-amir-muqam"
+              target="_blank"
+              >24News HD - Kashmir Affairs Minister Pre-Event Statement (August
+              4, 2025)</a
+            >
+          </li>
+        </ul>
+
+        <p>
+          <strong
+            >Pakistani Government Position Papers (August 1, 2025):</strong
+          >
+        </p>
+        <ul>
+          <li>
+            <a
+              href="https://www.globalsecurity.org/wmd/library/news/pakistan/2025/pakistan-250801-pakistan-mfab01.htm"
+              target="_blank"
+              >Pakistan MFA - Press Briefing on India Relations (August 1,
+              2025)</a
+            >
+          </li>
+        </ul>
+
+        <p><strong>Key Findings Summary:</strong></p>
+        <ul>
+          <li>
+            <strong>DG ISPR's August 6 Statement:</strong> Clear threat about
+            "eastern India" strikes in interview with The Economist
+          </li>
+          <li>
+            <strong>Field Marshal Asim Munir:</strong> Official ISPR statement
+            on Kashmir Solidarity Day reaffirming military support
+          </li>
+          <li>
+            <strong>Coordinated Messaging:</strong> All major Pakistani news
+            outlets covered Kashmir Solidarity Day with unified narrative
+          </li>
+          <li>
+            <strong>No New Border Incidents:</strong> Pakistani media silent on
+            new infiltration attempts or border violations in last 24 hours
+          </li>
+          <li>
+            <strong>Presidential Denial Campaign:</strong> Strong coordinated
+            messaging denying Field Marshal's political ambitions
+          </li>
+        </ul>
+
+        <p><strong>Source Reliability Assessment:</strong></p>
+        <ul>
+          <li>
+            <strong>High Confidence:</strong> Official ISPR statements,
+            Pakistani government MFA briefings
+          </li>
+          <li>
+            <strong>Medium Confidence:</strong> Major Pakistani news channels
+            with government access
+          </li>
+          <li>
+            <strong>Corroborated:</strong> Al Jazeera international reporting
+            confirms Pakistani domestic coverage
+          </li>
+        </ul>
+
+        <p>
+          <strong>Intelligence Gap:</strong> Limited real-time military
+          operational coverage suggests potential OPSEC measures or strategic
+          media management by Pakistani military
+        </p>
+      </div>
+
+      <h2>SOURCE RELIABILITY ASSESSMENT</h2>
+
+      <div class="source-reliability">
+        <p>
+          <strong>Primary Sources (High Reliability):</strong> ISPR official
+          statements, DG ISPR interviews, Pakistani government radio
+        </p>
+        <p>
+          <strong>Secondary Sources (Medium Reliability):</strong> Major
+          Pakistani news channels with government access
+        </p>
+        <p>
+          <strong>Limitations:</strong> Potential media restrictions on
+          sensitive military information, propaganda elements in reporting
+        </p>
+      </div>
+
+      <div class="timestamp">
+        Report Compiled: August 6, 2025, 14:30 IST<br />
+        Next Update: August 7, 2025, 09:00 IST<br />
+      </div>
+    </div>
+
+    <script>
+      // Matrix rain effect
+      function createMatrixRain() {
+        const matrixBg = document.getElementById('matrix-bg');
+        const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+        
+        for (let i = 0; i < 50; i++) {
+          const char = document.createElement('div');
+          char.className = 'matrix-char';
+          char.textContent = chars[Math.floor(Math.random() * chars.length)];
+          char.style.left = Math.random() * 100 + '%';
+          char.style.animationDelay = Math.random() * 3 + 's';
+          char.style.animationDuration = (Math.random() * 2 + 2) + 's';
+          matrixBg.appendChild(char);
+        }
+      }
+
+      // Initialize matrix rain
+      createMatrixRain();
+      
+      // Recreate matrix rain every 5 seconds
+      setInterval(() => {
+        const matrixBg = document.getElementById('matrix-bg');
+        matrixBg.innerHTML = '';
+        createMatrixRain();
+      }, 5000);
+    </script>
+  </body>
+</html>
