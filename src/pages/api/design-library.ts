@@ -56,10 +56,30 @@ async function callGroqVisionAPI(apiKey: string, imageBase64: string, systemProm
   try {
     const parsedContent = JSON.parse(content);
     console.log('Parsed content:', JSON.stringify(parsedContent, null, 2));
-    return {
-      cssVariables: parsedContent.cssVariables || '',
-      analysisResult: parsedContent.analysisResult || ''
-    };
+    
+    // Handle different response formats
+    if (parsedContent.css && parsedContent.implementationNote) {
+      // New format with css and implementationNote
+      return {
+        cssVariables: parsedContent.css,
+        analysisResult: parsedContent.implementationNote
+      };
+    } else if (parsedContent.cssVariables && parsedContent.analysisResult) {
+      // Original expected format
+      return {
+        cssVariables: parsedContent.cssVariables,
+        analysisResult: parsedContent.analysisResult
+      };
+    } else {
+      // Fallback - try to extract CSS from any available field
+      const cssContent = parsedContent.css || parsedContent.cssVariables || parsedContent.styles || '';
+      const analysisContent = parsedContent.implementationNote || parsedContent.analysisResult || parsedContent.analysis || '';
+      
+      return {
+        cssVariables: cssContent,
+        analysisResult: analysisContent
+      };
+    }
   } catch (error) {
     console.error('JSON parse error:', error);
     throw new Error('Invalid JSON response from Groq API');
